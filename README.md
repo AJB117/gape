@@ -4,7 +4,7 @@ This repository contains the code for the paper ["Bridging Graph Position Encodi
 
 ## Structure
 
-There are 2 components to this repository. `graphs` contains code for running the graph dataset experiments, and `mt` contains code for running the machine translation experiments.
+There are 2 main directories in this repository. `graphs` contains code for running the graph dataset experiments, and `mt` contains code for running the machine translation experiments.
 
 ## Setup
 
