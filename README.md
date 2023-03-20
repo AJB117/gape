@@ -23,7 +23,7 @@ To install dependencies for `graphs`, run the following:
 Dependencies for `mt` require an environment with Python 3.7 instead, which is easy to install separate from your main installation with Conda. Run the following after deactivating `gape-graphs`:
 
 1. `cd mt`
-2. `conda create -f environment.yml`
+2. `conda env create -f environment.yml`
 3. `conda activate gape-mt`
 
 Run the shell scripts in `graphs/data/` to download the graph datasets. The English-Vietnamese sentence pairs are already in `mt/nmt/data`.
