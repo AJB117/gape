@@ -8,6 +8,7 @@ __pycache__/
 *.pickle
 *.index
 *.zip
+*out/
 
 # C extensions
 *.so
