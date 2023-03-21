@@ -27,7 +27,6 @@ class GraphTransformerNet(nn.Module):
         self.batch_norm = net_params['batch_norm']
         self.residual = net_params['residual']
         self.device = net_params['device']
-        self.gape_per_layer = net_params['gape_per_layer']
         self.pe_layer = PELayer(net_params)
         self.cat = net_params.get('cat_gape', False)
 
@@ -65,9 +64,6 @@ class GraphTransformerNet(nn.Module):
         # convnets
         for conv in self.layers:
             h = conv(g, h)
-
-            if self.gape_per_layer:
-                h = h + pe
 
         g.ndata['h'] = h
         

@@ -30,7 +30,6 @@ class GraphTransformerNet(nn.Module):
         # self.edge_feat = net_params['edge_feat']
         self.device = net_params['device']
         self.wl_pos_enc = net_params['wl_pos_enc']
-        self.gape_per_layer = net_params['gape_per_layer']
         self.pe_layer = PELayer(net_params)
         self.cat = net_params['cat_gape']
         self.n_classes = n_classes
@@ -80,9 +79,6 @@ class GraphTransformerNet(nn.Module):
         # convnets
         for conv in self.layers:
             h = conv(g, h)
-
-            if self.gape_per_layer:
-                h = h + pe
 
         out = self.MLP_layer(h)
         return out

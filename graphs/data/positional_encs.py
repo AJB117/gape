@@ -157,10 +157,7 @@ def add_multiple_automaton_encodings(dataset, transition_matrices, initial_vecto
 
 def automaton_encoding(g, transition_matrix, initial_vector, diag=False, matrix='A', ret_pe=False, idx=0, model=None):
     transition_matrix = torch.nan_to_num(transition_matrix)
-    if diag:
-        transition_inv = transition_matrix**-1
-    else:
-        transition_inv = torch.linalg.inv(transition_matrix).cpu().numpy()
+    transition_inv = torch.linalg.inv(transition_matrix).cpu().numpy()
 
     if matrix == 'A':
         # Adjacency matrix
@@ -183,10 +180,6 @@ def automaton_encoding(g, transition_matrix, initial_vector, diag=False, matrix=
         L = sp.eye(n) + D * A * D
         mat = L.todense()
 
-    if model.pe_layer.gape_normalize_mat:
-        D = sp.diags(dgl.backend.asnumpy(g.in_degrees()).clip(1) ** -1.0, dtype=float) # D^-1
-        mat = mat @ D
-    
     if model.pe_layer.ngape_betas:
         gape_beta = float(model.pe_layer.ngape_betas[idx])
     else:
@@ -210,24 +203,11 @@ def automaton_encoding(g, transition_matrix, initial_vector, diag=False, matrix=
     if gape_beta < 1:
         initial_vector = initial_vector * gape_beta # emulate pagerank
 
-    initial_vector_torch = initial_vector.clone()
-
-    if diag:
-        # mat_product = torch.einsum('ij, i->ij', initial_vector, transition_inv).cpu().numpy()
-        mat_product = (torch.diag(transition_matrix) @ initial_vector).cpu().numpy() 
-        transition_inv = torch.diag(transition_inv).cpu().numpy()
-    else:
-        initial_vector = initial_vector.cpu().numpy()
-        mat_product = transition_inv @ initial_vector
-
+    initial_vector = initial_vector.cpu().numpy()
+    mat_product = transition_inv @ initial_vector
 
     pe = scipy.linalg.solve_sylvester(transition_inv, -mat, mat_product)
     pe = torch.from_numpy(pe.T).float()
-
-    if model.pe_layer.gape_tau:
-        pe = pe.to(torch.device('cpu'))
-        initial_vector_torch = initial_vector_torch.to(torch.device('cpu'))
-        pe = torch.mul(pe.T, initial_vector_torch).T
 
     if ret_pe:
         return pe
@@ -297,9 +277,6 @@ def automaton_encoding_CSL(g, transition_matrix, initial_vector, ret_pe=False, i
     transition_inv = transition_matrix.transpose(1, 0).cpu().numpy() # assuming the transition matrix is orthogonal
     matrix = g.adjacency_matrix().to_dense().cpu().numpy()
     mat = matrix
-
-    if model.pe_layer.gape_normalize_mat:
-        mat = mat @ sp.diags(dgl.backend.asnumpy(g.in_degrees()).clip(1) ** -1.0, dtype=float) # D^-1
 
     matrix = mat
 
