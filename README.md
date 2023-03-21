@@ -26,11 +26,13 @@ Dependencies for `mt` require an environment with Python 3.7 instead, which is e
 2. `conda env create -f environment.yml`
 3. `conda activate gape-mt`
 
-Run the shell scripts in `graphs/data/` to download the graph datasets. The English-Vietnamese sentence pairs are already in `mt/nmt/data`.
+Run the shell scripts in `graphs/data/` to download the graph datasets. Run any preparation scripts in each dataset's respective folder. The English-Vietnamese sentence pairs are already in `mt/nmt/data`.
 
 ## Running the Experiments
 
 ### Graphs
+
+Bash scripts to test each PE per dataset are located in `graphs/scripts`. By default, the scripts assume only one GPU and run experiments for each PE in series. The evaluation metrics and training outputs are stored in `DEBUG.log`.
 
 ### MT
 
