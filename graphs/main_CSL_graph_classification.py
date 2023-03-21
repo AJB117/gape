@@ -137,22 +137,12 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
                 # drop_last = False
 
                 
-                if MODEL_NAME in ['RingGNN', '3WLGNN']:
-                    # import train functions specific for WL-GNNs
-                    from train.train_CSL_graph_classification import train_epoch_dense as train_epoch, evaluate_network_dense as evaluate_network
-                    from functools import partial # util function to pass pos_enc flag to collate function
+                # import train functions for all other GCNs
+                from train.train_CSL_graph_classification import train_epoch_sparse as train_epoch, evaluate_network_sparse as evaluate_network
 
-                    train_loader = DataLoader(trainset, shuffle=True, collate_fn=partial(dataset.collate_dense_gnn, pos_enc=net_params['pos_enc']))
-                    val_loader = DataLoader(valset, shuffle=False, collate_fn=partial(dataset.collate_dense_gnn, pos_enc=net_params['pos_enc']))
-                    test_loader = DataLoader(testset, shuffle=False, collate_fn=partial(dataset.collate_dense_gnn, pos_enc=net_params['pos_enc']))
-
-                else:
-                    # import train functions for all other GCNs
-                    from train.train_CSL_graph_classification import train_epoch_sparse as train_epoch, evaluate_network_sparse as evaluate_network
-
-                    train_loader = DataLoader(trainset, batch_size=params['batch_size'], shuffle=True, drop_last=drop_last, collate_fn=dataset.collate)
-                    val_loader = DataLoader(valset, batch_size=params['batch_size'], shuffle=False, drop_last=drop_last, collate_fn=dataset.collate)
-                    test_loader = DataLoader(testset, batch_size=params['batch_size'], shuffle=False, drop_last=drop_last, collate_fn=dataset.collate)
+                train_loader = DataLoader(trainset, batch_size=params['batch_size'], shuffle=True, drop_last=drop_last, collate_fn=dataset.collate)
+                val_loader = DataLoader(valset, batch_size=params['batch_size'], shuffle=False, drop_last=drop_last, collate_fn=dataset.collate)
+                test_loader = DataLoader(testset, batch_size=params['batch_size'], shuffle=False, drop_last=drop_last, collate_fn=dataset.collate)
 
 
                 best_test_acc = -1.0
@@ -163,10 +153,7 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
 
                     start = time.time()
 
-                    if MODEL_NAME in ['RingGNN', '3WLGNN']: # since different batch training function for dense GNNs
-                        epoch_train_loss, epoch_train_acc, optimizer = train_epoch(model, optimizer, device, train_loader, epoch, params['batch_size'])
-                    else:   # for all other models common train function
-                        epoch_train_loss, epoch_train_acc, optimizer = train_epoch(model, optimizer, device, train_loader, epoch, MODEL_NAME)
+                    epoch_train_loss, epoch_train_acc, optimizer = train_epoch(model, optimizer, device, train_loader, epoch, MODEL_NAME)
 
                     #epoch_train_loss, epoch_train_acc, optimizer = train_epoch(model, optimizer, device, train_loader, epoch)
                     epoch_val_loss, epoch_val_acc = evaluate_network(model, device, val_loader, epoch, MODEL_NAME)
@@ -349,6 +336,7 @@ def main():
     net_params['num_edge_type'] = dataset.all.num_edge_type
     num_classes = len(np.unique(dataset.all.graph_labels))
     net_params['n_classes'] = num_classes
+    net_params['seed_array'] = params['seed_array']
     
     logger.info(net_params)
     logger.info(params)
@@ -360,12 +348,6 @@ def main():
         num_nodes = num_nodes_train + num_nodes_test
         net_params['avg_node_num'] = int(np.ceil(np.mean(num_nodes)))
         
-    # RingGNN, 3WLGNN
-    if MODEL_NAME in ['RingGNN', '3WLGNN']:
-        if net_params['pos_enc']:
-            net_params['in_dim'] = net_params['pos_enc_dim']
-        else:
-            net_params['in_dim'] = 1
 
     dirs = setup_dirs(args, out_dir, MODEL_NAME, DATASET_NAME, config)
 
