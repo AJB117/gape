@@ -13,7 +13,6 @@ def train_epoch_sparse(model, optimizer, device, data_loader, epoch, model_name,
     nb_data = 0
 
     for iter, data in enumerate(data_loader):
-        if iter == 1: break
         batch_graphs, graph_lens = data[0]
         batch_graphs = batch_graphs.to(device)
         batch_labels = data[1].to(device)
@@ -68,7 +67,6 @@ def evaluate_network_sparse(model, device, data_loader, epoch, model_name):
     nb_data = 0
     with torch.no_grad():
         for iter, data in enumerate(data_loader):
-            if iter == 1: break
             batch_graphs, graph_lens = data[0]
             batch_graphs = batch_graphs.to(device)
             batch_labels = data[1].to(device)
