@@ -7,6 +7,7 @@ import time
 import random
 import glob
 import argparse, json
+import pprint
 
 import torch
 import torch.optim as optim
@@ -338,8 +339,8 @@ def main():
     net_params['n_classes'] = num_classes
     net_params['seed_array'] = params['seed_array']
     
-    logger.info(net_params)
-    logger.info(params)
+    logger.info(pprint.pformat(net_params))
+    logger.info(pprint.pformat(params))
 
     # RingGNN
     if MODEL_NAME == 'RingGNN':

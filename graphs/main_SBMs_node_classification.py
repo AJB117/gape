@@ -6,6 +6,7 @@ import os
 import time
 import random
 import argparse, json
+import pprint
 
 import torch
 
@@ -317,8 +318,8 @@ def main():
 
     net_params['seed_array'] = params['seed_array']
 
-    logger.info(net_params)
-    logger.info(params)
+    logger.info(pprint.pformat(net_params))
+    logger.info(pprint.pformat(params))
 
     if MODEL_NAME == 'RingGNN':
         num_nodes = [dataset.train[i][0].number_of_nodes() for i in range(len(dataset.train))]

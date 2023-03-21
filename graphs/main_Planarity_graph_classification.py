@@ -7,6 +7,7 @@ import os
 import time
 import random
 import argparse, json
+import pprint
 
 import torch
 
@@ -294,8 +295,8 @@ def main():
     net_params['n_classes'] = num_classes
     net_params['seed_array'] = params['seed_array']
 
-    logger.info(net_params)
-    logger.info(params)
+    logger.info(pprint.pformat(net_params))
+    logger.info(pprint.pformat(params))
 
     if MODEL_NAME == 'PNA':
         D = torch.cat([torch.sparse.sum(g.adjacency_matrix(transpose=True), dim=-1).to_dense() for g in

@@ -7,7 +7,7 @@ import time
 import random
 import glob
 import argparse, json
-import pickle
+import pprint
 import torch
 
 import torch.optim as optim
@@ -310,7 +310,6 @@ def main():
     net_params['adj_enc'] = args.adj_enc
     net_params['dataset'] = DATASET_NAME
     # net_params['matrix_type'] = args.matrix_type
-    net_params['pow_of_mat'] = args.pow_of_mat
     
     # ZINC
     net_params['num_atom_type'] = dataset.num_atom_type
@@ -318,8 +317,8 @@ def main():
 
     net_params['seed_array'] = params['seed_array']
 
-    logger.info(net_params)
-    logger.info(params)
+    logger.info(pprint.pformat(net_params))
+    logger.info(pprint.pformat(params))
 
     if MODEL_NAME == 'DiffPool':
         # calculate assignment dimension: pool_ratio * largest graph's maximum

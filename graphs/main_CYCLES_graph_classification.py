@@ -8,6 +8,7 @@ import time
 import random
 import glob
 import argparse, json
+import pprint
 
 import torch
 
@@ -313,7 +314,6 @@ def main(args):
 
     net_params['adj_enc'] = args.adj_enc
     net_params['dataset'] = DATASET_NAME
-    net_params['pow_of_mat'] = args.pow_of_mat
 
     dataset.train.spatial_pos_lists = []
     dataset.val.spatial_pos_lists = []
@@ -327,8 +327,8 @@ def main(args):
 
     net_params['seed_array'] = params['seed_array']
 
-    logger.info(net_params)
-    logger.info(params)
+    logger.info(pprint.pformat(net_params))
+    logger.info(pprint.pformat(params))
         
     if MODEL_NAME == 'PNA':
         D = torch.cat([torch.sparse.sum(g.adjacency_matrix(transpose=True), dim=-1).to_dense() for g in
