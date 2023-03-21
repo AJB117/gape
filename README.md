@@ -1,6 +1,6 @@
 # Bridging Graph Position Encodings for Transformers with Weighted Graph-Walking Automata
 
-This repository contains the code for the paper ["Bridging Graph Position Encodings for Transformers with Weighted Graph-Walking Automata" (Soga and Chiang, 2023)](https://arxiv.org/abs/2212.06898). 
+This repository contains the code for the paper ["Bridging Graph Position Encodings for Transformers with Weighted Graph-Walking Automata" (Soga and Chiang, 2023)](https://arxiv.org/abs/2212.06898).
 
 ## Structure
 
@@ -26,13 +26,13 @@ Dependencies for `mt` require an environment with Python 3.7 instead, which is e
 2. `conda env create -f environment.yml`
 3. `conda activate gape-mt`
 
-Run the shell scripts in `graphs/data/` to download the graph datasets. Run any preparation scripts in each dataset's respective folder. The English-Vietnamese sentence pairs are already in `mt/nmt/data`.
+Run the shell scripts in `graphs/data/` to download the graph datasets. Run any preparation scripts in each dataset's respective folder. The only exception is OGB-PCQM4Mv2 which is downloaded automatically upon running `graphs/scripts/run_OGB_graph_regression.sh`. The English-Vietnamese sentence pairs are already in `mt/nmt/data`.
 
 ## Running the Experiments
 
 ### Graphs
 
-Bash scripts to test each PE per dataset are located in `graphs/scripts`. By default, the scripts assume only one GPU and run experiments for each PE in series. The evaluation metrics and training outputs are stored in `DEBUG.log`.
+Bash scripts to test each PE per dataset are located in `graphs/scripts`. By default, the scripts assume only one GPU and run experiments for each PE in series over 4 random seeds. The evaluation metrics and training outputs are logged in `DEBUG.log`.
 
 ### MT
 
