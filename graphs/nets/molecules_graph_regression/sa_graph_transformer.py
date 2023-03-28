@@ -8,7 +8,7 @@ from layers.spectral_attention import SpectralAttention
     Graph Transformer with node spectral attention PE
     
 """
-from layers.graph_transformer_edge_layer import GraphTransformerLayer
+from layers.graph_transformer_layer import GraphTransformerLayer
 from layers.mlp_readout_layer import MLPReadout
 
 class SAGraphTransformerNet(nn.Module):

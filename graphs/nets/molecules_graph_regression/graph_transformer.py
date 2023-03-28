@@ -2,6 +2,7 @@ import torch.nn as nn
 
 import dgl
 from layers.pe_layer import PELayer
+from layers.graph_transformer_layer import GraphTransformerLayer
 
 """
     Graph Transformer without edge features
@@ -32,10 +33,6 @@ class GraphTransformerNet(nn.Module):
 
         self.in_feat_dropout = nn.Dropout(in_feat_dropout)
         
-        if not self.edge_feat:
-            from layers.graph_transformer_layer import GraphTransformerLayer
-        else:
-            from layers.graph_transformer_edge_layer import GraphTransformerLayer
 
         self.layers = nn.ModuleList([ GraphTransformerLayer(hidden_dim, hidden_dim, num_heads, dropout,
                                                     self.layer_norm, self.batch_norm, self.residual) for _ in range(n_layers-1) ]) 
