@@ -246,3 +246,57 @@ class SpectralAttention(nn.Module):
         # lpe = torch.nansum(lpe, 0, keepdim=False)
 
         return lpe
+
+class AutomatonPELayer(nn.Module):
+    def __init__(self, config):
+        super().__init__()
+        self.num_states = config['num_states']
+        self.directed = config['directed']
+        embed_dim = config['embed_dim']
+
+        self.embedding_pos_enc = nn.Linear(self.num_states, embed_dim)
+        self.pos_initial = nn.Parameter(torch.Tensor(self.num_states, 1), requires_grad=True)
+        self.pos_transition = nn.Parameter(torch.Tensor(self.num_states, self.num_states), requires_grad=True)
+
+        nn.init.normal_(self.pos_initial)
+        nn.init.orthogonal_(self.pos_transition)
+
+    def get_pe(self, max_len):
+        device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+        ones = torch.ones(max_len-1)
+        if self.directed:
+            adj = torch.diag(ones, 1)
+        else:
+            adj = torch.diag(ones, -1) + torch.diag(ones, 1)
+        transition_inv = torch.inverse(self.pos_transition).detach().cpu().numpy()
+        adj = adj.cpu().numpy()
+
+        z = torch.zeros(self.num_states, max_len-1, requires_grad=False, device=torch.device('cpu'))
+        vec_init = torch.cat((self.pos_initial, z), dim=1)
+        vec_init = vec_init.detach().cpu().numpy()
+
+        pe = scipy.linalg.solve_sylvester(transition_inv, -adj, transition_inv @ vec_init)
+        pe = torch.from_numpy(pe.T).to(device)
+
+        return pe
+
+    def forward(self, sentence_len):
+        device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+        ones = torch.ones(sentence_len-1)
+        if self.directed:
+            adj = torch.diag(ones, 1)
+        else:
+            adj = torch.diag(ones, -1) + torch.diag(ones, 1)
+
+        transition_inv = torch.inverse(self.pos_transition).detach().cpu().numpy()
+        adj = adj.cpu().numpy()
+
+        z = torch.zeros(self.num_states, sentence_len-1, requires_grad=False, device=device)
+        vec_init = torch.cat((self.pos_initial, z), dim=1)
+        vec_init = vec_init.detach().cpu().numpy()
+
+        pe = scipy.linalg.solve_sylvester(transition_inv, -adj, transition_inv @ vec_init)
+        pe = torch.from_numpy(pe.T).to(device)
+        pe = self.embedding_pos_enc(pe)
+
+        return pe

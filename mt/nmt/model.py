@@ -91,15 +91,14 @@ class Model(nn.Module):
         elif self.big_graph_ul:
             ut.get_logger().info('using big cycle graph positional embedding (unnormalized Laplacian)')
             self.pos_embedding = ut.get_cycle_graph_lapes(embed_dim, max_pos_length)
-        elif self.automaton:
-            ut.get_logger().info(f"using automaton encoding, directed: {self.config['directed']}, num_states: {self.config['num_states']}")
-            # self.pos_embedding = ut.AutomatonPELayer(self.config)
-            self.pos_embedding = ut.AutomatonPELayer(self.config).get_pe(self.config['max_pos_length'])
         elif self.rw_pos:
             ut.get_logger().info('Using random walk positional embedding')
             self.pos_embedding = ut.get_rw_pos(rw_pos_dim, max_pos_length)
         elif self.spd_centrality:
             ut.get_logger().info('Using shortest-path distance + node centrality embedding')
+        elif self.automaton:
+            ut.get_logger().info(f"using automaton encoding, directed: {self.config['directed']}, num_states: {self.config['num_states']}")
+            self.pos_embedding = ut.AutomatonPELayer(self.config).get_pe(self.config['max_pos_length'])
 
         # get word embeddings
         src_vocab_size, trg_vocab_size = ut.get_vocab_sizes(self.config)
