@@ -41,13 +41,8 @@ def train_epoch_sparse(model, optimizer, device, data_loader, epoch, model_name,
                 sign_flip[sign_flip>=0.5] = 1.0; sign_flip[sign_flip<0.5] = -1.0
                 batch_pos_enc = batch_pos_enc * sign_flip.unsqueeze(0)
                 batch_scores = model.forward(batch_graphs, batch_x, batch_e, batch_pos_enc)
-            # elif model.pe_layer.learned_pos_enc and not net_params.get('eigen_bartels_stewart', False):
             elif model.pe_layer.learned_pos_enc:
                 batch_scores = model.forward(batch_graphs, batch_x, batch_e)
-            # elif model.pe_layer.learned_pos_enc and net_params.get('eigen_bartels_stewart', False):
-            #     eigvals = batch_graphs.EigVals.to(device)
-            #     eigvecs = batch_graphs.EigVecs.to(device)
-            #     batch_scores = model.forward(batch_graphs, batch_x, batch_e, (eigvals, eigvecs))
             elif model.pe_layer.n_gape > 1:
                 batch_scores = model.forward(batch_graphs, batch_x, batch_e)
             else:

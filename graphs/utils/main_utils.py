@@ -6,24 +6,6 @@ import time
 
 import scipy.sparse as sp
 
-def rw_pow_transition(transition_matrix, power):
-    # Geometric diffusion features with Random Walk
-    Q = transition_matrix.shape[0]
-    A = np.array(torch.full((Q, Q), 1))
-    np.fill_diagonal(A, 0)
-    A = sp.csr_matrix(A)
-
-    degrees = np.full((Q,), Q-1)
-    Dinv = sp.diags(degrees.clip(1) ** -1.0, dtype=float) # D^-1
-
-    RW = A * Dinv 
-    M = RW
-
-    M_power = M
-    for _ in range(power-1):
-        M_power = M_power * M
-    return M_power
-
 
 def get_logger(logfile=None):
     _logfile = logfile if logfile else './DEBUG.log'
