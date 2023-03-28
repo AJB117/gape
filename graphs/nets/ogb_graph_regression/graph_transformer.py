@@ -1,4 +1,3 @@
-import torch
 import torch.nn as nn
 
 import dgl
@@ -7,7 +6,7 @@ from ogb.graphproppred.mol_encoder import AtomEncoder
 from layers.graph_transformer_layer import GraphTransformerLayer
 
 """
-    Graph Transformer with edge features
+    Graph Transformer without edge features
     
 """
 from layers.mlp_readout_layer import MLPReadout
@@ -15,7 +14,6 @@ from layers.mlp_readout_layer import MLPReadout
 class GraphTransformerNet(nn.Module):
     def __init__(self, net_params):
         super().__init__()
-        num_atom_type = net_params['num_atom_type']
         hidden_dim = net_params['hidden_dim']
         num_heads = net_params['n_heads']
         out_dim = net_params['out_dim']
@@ -48,16 +46,8 @@ class GraphTransformerNet(nn.Module):
             pe = self.pe_layer(g, h, pos_enc)
             h = h + pe
 
-        # h = torch.cat([h, pe], dim=1)
-        # print(h.shape)
-        # h = self.ll(h)
         h = self.in_feat_dropout(h)
 
-        if self.edge_feat:
-        # if not self.edge_feat: # edge feature set to 1
-            # e = torch.ones(e.size(0),1).to(self.device)
-            e = self.embedding_e(e)   
-        
         # convnets
         for conv in self.layers:
             if self.edge_feat:

@@ -1,11 +1,10 @@
-import torch
 import torch.nn as nn
 
 import dgl
 from layers.pe_layer import PELayer
 
 """
-    Graph Transformer with edge features
+    Graph Transformer without edge features
     
 """
 from layers.mlp_readout_layer import MLPReadout
@@ -29,13 +28,8 @@ class GraphTransformerNet(nn.Module):
         self.edge_feat = net_params['edge_feat']
         self.pe_layer = PELayer(net_params)
 
-        # self.embedding_h = nn.Embedding(num_atom_type, hidden_dim - net_params['pos_enc_dim'])
         self.embedding_h = nn.Embedding(num_atom_type, hidden_dim)
-        if self.edge_feat:
-            self.embedding_e = nn.Embedding(num_bond_type, hidden_dim)
-        # else:
-        #     self.embedding_e = nn.Linear(1, hidden_dim)
-        
+
         self.in_feat_dropout = nn.Dropout(in_feat_dropout)
         
         if not self.edge_feat:
@@ -56,15 +50,7 @@ class GraphTransformerNet(nn.Module):
             pe = self.pe_layer(g, h, pos_enc)
             h = h + pe
 
-        # h = torch.cat([h, pe], dim=1)
-        # print(h.shape)
-        # h = self.ll(h)
         h = self.in_feat_dropout(h)
-
-        if self.edge_feat:
-        # if not self.edge_feat: # edge feature set to 1
-            # e = torch.ones(e.size(0),1).to(self.device)
-            e = self.embedding_e(e)   
         
         # convnets
         for conv in self.layers:

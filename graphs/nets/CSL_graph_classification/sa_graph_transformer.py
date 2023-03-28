@@ -1,4 +1,3 @@
-import torch
 import torch.nn as nn
 
 import dgl
@@ -8,7 +7,6 @@ from layers.spectral_attention import SpectralAttention
     Graph Transformer with node spectral attention PE
     
 """
-# from layers.graph_transformer_edge_layer import GraphTransformerLayer
 from layers.graph_transformer_layer import GraphTransformerLayer
 from layers.mlp_readout_layer import MLPReadout
 
@@ -46,7 +44,6 @@ class SAGraphTransformerNet(nn.Module):
         self.layers = nn.ModuleList([ GraphTransformerLayer(hidden_dim, hidden_dim, num_heads, dropout,
                                                     self.layer_norm, self.batch_norm, self.residual) for _ in range(n_layers-1) ]) 
         self.layers.append(GraphTransformerLayer(hidden_dim, out_dim, num_heads, dropout, self.layer_norm, self.batch_norm, self.residual))
-        # self.MLP_layer = MLPReadout(out_dim, 1)   # 1 out dim since regression problem        
         self.MLP_layer = MLPReadout(out_dim, n_classes)
 
 

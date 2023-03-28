@@ -5,7 +5,7 @@ import dgl
 from layers.pe_layer import PELayer
 
 """
-    Graph Transformer with edge features
+    Graph Transformer without edge features
     
 """
 from layers.graph_transformer_layer import GraphTransformerLayer
@@ -40,7 +40,6 @@ class GraphTransformerNet(nn.Module):
         self.layers = nn.ModuleList([ GraphTransformerLayer(hidden_dim, hidden_dim, num_heads, dropout,
                                                     self.layer_norm, self.batch_norm, self.residual) for _ in range(n_layers-1) ]) 
         self.layers.append(GraphTransformerLayer(hidden_dim, out_dim, num_heads, dropout, self.layer_norm, self.batch_norm, self.residual))
-        # self.MLP_layer = MLPReadout(out_dim, 1)   # 1 out dim since regression problem        
         self.MLP_layer = MLPReadout(out_dim, n_classes)
 
         if self.cat:
@@ -54,12 +53,10 @@ class GraphTransformerNet(nn.Module):
             h = torch.cat((h, pe), dim=1)
             h = self.in_feat_dropout(h)
         else:
-        # h = self.embedding_h(h)
             h = self.in_feat_dropout(h)
             if self.pe_layer.use_pos_enc:
                 pe = self.pe_layer(g, h, pos_enc)
                 h = h + pe
-            # h = pe
 
         # convnets
         for conv in self.layers:

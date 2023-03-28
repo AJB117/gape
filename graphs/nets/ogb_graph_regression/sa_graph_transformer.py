@@ -1,4 +1,3 @@
-import torch
 import torch.nn as nn
 
 import dgl
@@ -8,7 +7,7 @@ from ogb.graphproppred.mol_encoder import AtomEncoder
 
 from layers.graph_transformer_layer import GraphTransformerLayer
 """
-    Graph Transformer with edge features
+    Graph Transformer with node spectral attention PE
     
 """
 from layers.mlp_readout_layer import MLPReadout

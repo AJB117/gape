@@ -1,4 +1,3 @@
-import torch
 import torch.nn as nn
 
 import dgl
@@ -6,16 +5,16 @@ from layers.pe_layer import PELayer
 from layers.spectral_attention import SpectralAttention
 
 """
-    Graph Transformer with edge features
+    Graph Transformer with node spectral attention PE
     
 """
+from layers.graph_transformer_edge_layer import GraphTransformerLayer
 from layers.mlp_readout_layer import MLPReadout
 
 class SAGraphTransformerNet(nn.Module):
     def __init__(self, net_params):
         super().__init__()
         num_atom_type = net_params['num_atom_type']
-        num_bond_type = net_params['num_bond_type']
         hidden_dim = net_params['hidden_dim']
         num_heads = net_params['n_heads']
         out_dim = net_params['out_dim']
@@ -39,17 +38,8 @@ class SAGraphTransformerNet(nn.Module):
         self.spectral_attn = SpectralAttention(lpe_dim, lpe_n_heads, lpe_layers)
 
         self.embedding_h = nn.Embedding(num_atom_type, hidden_dim - lpe_dim)
-        if self.edge_feat:
-            self.embedding_e = nn.Embedding(num_bond_type, hidden_dim)
-        # else:
-        #     self.embedding_e = nn.Linear(1, hidden_dim)
-        
         self.in_feat_dropout = nn.Dropout(in_feat_dropout)
         
-        if not self.edge_feat:
-            from layers.graph_transformer_layer import GraphTransformerLayer
-        else:
-            from layers.graph_transformer_edge_layer import GraphTransformerLayer
 
         self.layers = nn.ModuleList([ GraphTransformerLayer(hidden_dim, hidden_dim, num_heads, dropout,
                                                     self.layer_norm, self.batch_norm, self.residual) for _ in range(n_layers-1) ]) 
@@ -61,11 +51,6 @@ class SAGraphTransformerNet(nn.Module):
         h = self.spectral_attn(h, eigvecs, eigvals)
         h = self.in_feat_dropout(h)
 
-        if self.edge_feat:
-        # if not self.edge_feat: # edge feature set to 1
-            # e = torch.ones(e.size(0),1).to(self.device)
-            e = self.embedding_e(e)   
-        
         # convnets
         for conv in self.layers:
             if self.edge_feat:

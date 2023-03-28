@@ -5,12 +5,11 @@ import dgl
 from layers.pe_layer import PELayer
 
 """
-    Graph Transformer with edge features
+    Graph Transformer without edge features
     
 """
-# from layers.graph_transformer_edge_layer import GraphTransformerLayer
-# from layers.graph_transformer_layer import GraphTransformerLayer
 from layers.mlp_readout_layer import MLPReadout
+from layers.graph_transformer_layer import GraphTransformerLayer
 
 class GraphTransformerNet(nn.Module):
     def __init__(self, net_params):
@@ -32,11 +31,6 @@ class GraphTransformerNet(nn.Module):
         self.pe_layer = PELayer(net_params)
         self.cat = net_params.get('cat_gape', False)
 
-        if self.edge_feat:
-            from layers.graph_transformer_edge_layer import GraphTransformerLayer
-            self.embedding_e = nn.Linear(1, hidden_dim)
-        else:
-            from layers.graph_transformer_layer import GraphTransformerLayer
 
         if self.cat:
             self.embedding_h = nn.Linear(in_dim, hidden_dim - net_params['pos_enc_dim'])
@@ -60,24 +54,14 @@ class GraphTransformerNet(nn.Module):
             h = torch.cat((h, pe), dim=1)
             h = self.in_feat_dropout(h)
         else:
-        # h = self.embedding_h(h)
             h = self.in_feat_dropout(h)
             if self.pe_layer.use_pos_enc:
                 pe = self.pe_layer(g, h, pos_enc, graph_lens=graph_lens)
                 h = h + pe
 
-
-        # if not self.edge_feat: # edge feature set to 1
-        if self.edge_feat:
-            e = torch.ones(e.size(0),1).to(self.device)
-            e = self.embedding_e(e)   
-
         # convnets
         for conv in self.layers:
-            if self.edge_feat:
-                h, e = conv(g, h, e)
-            else:
-                h = conv(g, h)
+            h = conv(g, h)
 
         g.ndata['h'] = h
 

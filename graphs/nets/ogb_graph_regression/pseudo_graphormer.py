@@ -1,4 +1,3 @@
-import torch
 import torch.nn as nn
 import dgl
 from ogb.graphproppred.mol_encoder import AtomEncoder
@@ -6,7 +5,6 @@ from ogb.graphproppred.mol_encoder import AtomEncoder
 """
     Graphormer without spatial edge encoding and VNode
 """
-# from layers.graph_transformer_edge_layer import GraphTransformerLayer
 from layers.graph_transformer_layer import GraphTransformerLayer
 from layers.mlp_readout_layer import MLPReadout
 
@@ -24,7 +22,6 @@ class PseudoGraphormerNet(nn.Module):
         self.layer_norm = net_params['layer_norm']
         self.batch_norm = net_params['batch_norm']
         self.residual = net_params['residual']
-        # self.edge_feat = net_params['edge_feat']
         self.device = net_params['device']
 
         in_deg_centrality = net_params['in_deg_centrality']
@@ -50,12 +47,9 @@ class PseudoGraphormerNet(nn.Module):
         h = h + self.in_degree_encoder(g.in_degrees()) + self.out_degree_encoder(g.out_degrees())
 
         spatial_pos_bias = self.spatial_pos_encoder(spatial_pos_bias)
-        # g.ndata['spatial_pos_bias'] = spatial_pos_bias.permute(2, 0, 1) # (num_heads, V, V)
-        # spatial_pos_bias = spatial_pos_bias.permute(2, 0, 1) # (num_heads, V, V)
 
         # convnets
         for conv in self.layers:
-            # h, e = conv(g, h, e)
             h = conv(g, h, spatial_pos_bias=spatial_pos_bias)
 
         g.ndata['h'] = h
